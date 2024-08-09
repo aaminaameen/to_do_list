@@ -15,7 +15,34 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 1),
+    )..repeat(reverse: true);
+
+    _animation = Tween<double>(begin: 0, end: 2).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeInOut,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -76,6 +103,29 @@ class _HomeScreenState extends State<HomeScreen> {
                         context
                             .read<ToDoBloc>()
                             .add(ToggleTaskCompletion(index));
+                      },
+                    ),
+                    trailing: AnimatedBuilder(
+                      animation: _animation,
+                      builder: (context, child) {
+                        return Transform.translate(
+                          offset: Offset(_animation.value, 0),
+                          child: Transform(
+                            alignment: Alignment.center,
+                            transform: Matrix4.rotationY(
+                              TextDirection.rtl == TextDirection.rtl
+                                  ? 3.14159
+                                  : 0,
+                            ),
+                            child: const Opacity(
+                              opacity: .5,
+                              child: Icon(
+                                Icons.double_arrow_rounded,
+                                size: 20,
+                              ),
+                            ),
+                          ),
+                        );
                       },
                     ),
                     title: RichText(
